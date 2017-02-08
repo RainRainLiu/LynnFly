@@ -64,7 +64,7 @@ unsigned char MPU6050_is_DRY(void)
 *功　　能:	    设置  MPU6050 的时钟源
  * CLK_SEL | Clock Source
  * --------+--------------------------------------
- * 0       | Internal oscillator
+ * 0       | Internal oscillator 内部振荡器
  * 1       | PLL with X Gyro reference
  * 2       | PLL with Y Gyro reference
  * 3       | PLL with Z Gyro reference
@@ -131,17 +131,24 @@ uint8_t MPU6050_getDeviceID(void) {
 *函数原型:		uint8_tMPU6050_testConnection(void)
 *功　　能:	    检测MPU6050 是否已经连接
 *******************************************************************************/
-uint8_t MPU6050_testConnection(void) {
+uint8_t MPU6050_testConnection(void) 
+{
    if(MPU6050_getDeviceID() == 0x68)  //0b01101000;
-   return 1;
-   else return 0;
+   {
+	   return 1;
+   }
+   else 
+   {
+	   return 0;
+   }
 }
 
 /**************************实现函数********************************************
 *函数原型:		void MPU6050_setI2CMasterModeEnabled(uint8_tenabled)
 *功　　能:	    设置 MPU6050 是否为AUX I2C线的主机
 *******************************************************************************/
-void MPU6050_setI2CMasterModeEnabled(uint8_t enabled) {
+void MPU6050_setI2CMasterModeEnabled(uint8_t enabled) 
+{
     IICwriteBit(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_EN_BIT, enabled);
 }
 
@@ -149,7 +156,8 @@ void MPU6050_setI2CMasterModeEnabled(uint8_t enabled) {
 *函数原型:		void MPU6050_setI2CBypassEnabled(uint8_tenabled)
 *功　　能:	    设置 MPU6050 是否为AUX I2C线的主机
 *******************************************************************************/
-void MPU6050_setI2CBypassEnabled(uint8_t enabled) {
+void MPU6050_setI2CBypassEnabled(uint8_t enabled) 
+{
     IICwriteBit(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, enabled);
 }
 
@@ -159,23 +167,23 @@ void MPU6050_setI2CBypassEnabled(uint8_t enabled) {
 *******************************************************************************/
 void MPU6050_Check(void) 
 { 
-    /*
-  switch(MPU6050_testConnection())
-  {
-    case 0:printf("MPU6050 not found...\r\n");
-      break;
-    case 1:printf("MPU6050 check success...\r\n");
-      break;
-  }
-    */
+	if (MPU6050_testConnection())
+	{
+		DBG_PRINTF("MPU6050 check success...\r\n");
+	}
+	else
+	{
+		DBG_PRINTF("MPU6050 not found...\r\n");
+	}
 } 
 /**************************实现函数********************************************
 *函数原型:		void MPU6050_initialize(void)
 *功　　能:	    初始化 	MPU6050 以进入可用状态。
 *******************************************************************************/
-void MPU6050_initialize(void) {
+void MPU6050_initialize(void) 
+{
 
-		IICwriteByte(devAddr, MPU6050_RA_PWR_MGMT_1, 0x80);      //PWR_MGMT_1    -- DEVICE_RESET 1
+	IICwriteByte(devAddr, MPU6050_RA_PWR_MGMT_1, 0x80);      //PWR_MGMT_1    -- DEVICE_RESET 1
     delay_ms(50);
     IICwriteByte(devAddr, MPU6050_RA_SMPLRT_DIV, 0x00);      //SMPLRT_DIV    -- SMPLRT_DIV = 0  Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
     IICwriteByte(devAddr, MPU6050_RA_PWR_MGMT_1, 0x03);      //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)
@@ -552,46 +560,55 @@ void MPU6050_getFIFOBytes(uint8_t *data, uint8_t length) {
  * @return Current interrupt status
  * @see MPU6050_RA_INT_STATUS
  */
-uint8_t MPU6050_getIntStatus(void) {
+uint8_t MPU6050_getIntStatus(void) 
+{
     return I2C_ReadOneByte(devAddr, MPU6050_RA_INT_STATUS);
 }
 
-void MPU6050_setDMPEnabled(uint8_t enabled) {
+void MPU6050_setDMPEnabled(uint8_t enabled) 
+{
     IICwriteBit(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_DMP_EN_BIT, enabled);
 }
 
-uint8_t MPU6050_getOTPBankValid(void) {
+uint8_t MPU6050_getOTPBankValid(void) 
+{
 	uint8_t  temp = I2C_ReadOneByte(devAddr, MPU6050_RA_XG_OFFS_TC);
     return temp&(1<<MPU6050_TC_OTP_BNK_VLD_BIT);
 }
 
-int8_t MPU6050_getXGyroOffsetTC(void) {
+int8_t MPU6050_getXGyroOffsetTC(void) 
+{
 	uint8_t  temp = I2C_ReadOneByte(devAddr, MPU6050_RA_XG_OFFS_TC);
 	temp &= 0x3F;
     return temp;
 }
-void MPU6050_setXGyroOffsetTC(int8_t offset) {
+void MPU6050_setXGyroOffsetTC(int8_t offset) 
+{
     IICwriteBits(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 
 // YG_OFFS_TC register
-int8_t MPU6050_getYGyroOffsetTC(void) {
+int8_t MPU6050_getYGyroOffsetTC(void) 
+{
 	uint8_t  temp = I2C_ReadOneByte(devAddr, MPU6050_RA_YG_OFFS_TC);
 	temp &= 0x3F;
     return temp;
 }
-void MPU6050_setYGyroOffsetTC(int8_t offset) {
+void MPU6050_setYGyroOffsetTC(int8_t offset) 
+{
     IICwriteBits(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // ZG_OFFS_TC register
-int8_t MPU6050_getZGyroOffsetTC(void) {
+int8_t MPU6050_getZGyroOffsetTC(void)
+{
 	uint8_t  temp = I2C_ReadOneByte(devAddr, MPU6050_RA_ZG_OFFS_TC);
 	temp &= 0x3F;
     return temp;
 }
-void MPU6050_setZGyroOffsetTC(int8_t offset) {
+void MPU6050_setZGyroOffsetTC(int8_t offset) 
+{
     IICwriteBits(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
@@ -601,7 +618,8 @@ void MPU6050_setZGyroOffsetTC(int8_t offset) {
  * @see getSlaveAddress()
  * @see MPU6050_RA_I2C_SLV0_ADDR
  */
-void MPU6050_setSlaveAddress(uint8_t num, uint8_t address) {
+void MPU6050_setSlaveAddress(uint8_t num, uint8_t address) 
+{
     if (num > 3) return;
     IICwriteByte(devAddr, MPU6050_RA_I2C_SLV0_ADDR + num*3, address);
 }

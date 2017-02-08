@@ -402,56 +402,66 @@ uint8_t MPU6050_DMP_Initialize(void)
             MPU6050_resetFIFO();
             MPU6050_getIntStatus();
             //printf(("打开DMP引擎...\r\n"));
-			      MPU6050_setDMPEnabled(1);
-			      //printf(("DMP引擎准备就绪,等待第一次数据中断...\r\n"));
-			      MPU6050_getIntStatus();
+			MPU6050_setDMPEnabled(1);
+			//printf(("DMP引擎准备就绪,等待第一次数据中断...\r\n"));
+			MPU6050_getIntStatus();
 
-        } else {
+        } 
+		else 
+		{
+			
             //printf(("DMP引擎配置校验出错...\r\n"));
             return 2; // configuration block loading failed
         }
-    } else {
-         printf(("DMP ERR.\r\n"));
+    } 
+	else 
+	{
+        DBG_PRINTF(("DMP ERR.\r\n"));
         return 1; // main binary block loading failed
     }
-    printf(("======DMP   OK========\r\n"));
+    DBG_PRINTF(("======DMP   OK========\r\n"));
     return 0; // success
 }
 
-uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
-uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
+uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU拥有实际中断状态字节从微处理器
+uint8_t devStatus;      // 每个设备操作后返回状态 (0 = success, !0 = error)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 
 void DMP_Routing(void)
 {
+	
 	int i;
 	uint8_t* ptr = (uint8_t*)&DMP_DATA;	 //准备将FIFO的数据包，
-	while((MPU6050_is_DRY() == 0) && (fifoCount < dmpPacketSize));
+	while((MPU6050_is_DRY() == 0) && (fifoCount < dmpPacketSize)) //等待数据转换完成
+	{
+		os_delay(1);
+	};
   
-		mpuIntStatus = MPU6050_getIntStatus();	
-		// get current FIFO count
-	    fifoCount = MPU6050_getFIFOCount();
-		// check for overflow (this should never happen unless our code is too inefficient)
-	    if ((mpuIntStatus & 0x10) || fifoCount == 1024) {  //检测 FIFO缓冲区是否爆满 溢出
-	        // reset so we can continue cleanly
-	        MPU6050_resetFIFO();
-	    // otherwise, check for DMP data ready interrupt (this should happen frequently)
-	    }else if (mpuIntStatus & 0x02) {
-	        // wait for correct available data length, should be a VERY short wait
-	        while (fifoCount < dmpPacketSize) fifoCount = MPU6050_getFIFOCount();
-	        // read a packet from FIFO
-	        MPU6050_getFIFOBytes(fifoBuffer, dmpPacketSize);
-	        // track FIFO count here in case there is > 1 packet available
-	        // (this lets us immediately read more without waiting for an interrupt)
-	        fifoCount -= dmpPacketSize;
+	mpuIntStatus = MPU6050_getIntStatus();	//获取中断状态
+
+	fifoCount = MPU6050_getFIFOCount();	//获取当前FIFO内数据的数量
+
+	if ((mpuIntStatus & 0x10) || fifoCount == 1024) 	//检测 FIFO缓冲区是否爆满 溢出
+	{  
+	    MPU6050_resetFIFO(); //重置
 	
-			for(i=0 ; i < dmpPacketSize; i+=2) {
-				ptr[i]   = fifoBuffer[i+1];  //数据大小端的处理。
-				ptr[i+1] = fifoBuffer[i];
-				}
-			DMP_Covert_Data(); //将FIFO的数据进行转换，并解出载体的三个姿态角
-			}	
+	}else if (mpuIntStatus & 0x02) // otherwise, check for DMP data ready interrupt (this should happen frequently)
+	{
+	    // wait for correct available data length, should be a VERY short wait
+	    while (fifoCount < dmpPacketSize) fifoCount = MPU6050_getFIFOCount();
+	    // read a packet from FIFO
+	    MPU6050_getFIFOBytes(fifoBuffer, dmpPacketSize);
+	    // track FIFO count here in case there is > 1 packet available
+	    // (this lets us immediately read more without waiting for an interrupt)
+	    fifoCount -= dmpPacketSize;
+	
+		for(i=0 ; i < dmpPacketSize; i+=2) {
+			ptr[i]   = fifoBuffer[i+1];  //数据大小端的处理。
+			ptr[i+1] = fifoBuffer[i];
+			}
+		DMP_Covert_Data(); //将FIFO的数据进行转换，并解出载体的三个姿态角
+	}	
 }
 
 // Fast inverse square-root	   快速计算 1/Sqrt(x) 		   

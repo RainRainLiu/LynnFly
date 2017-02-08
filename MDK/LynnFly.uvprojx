@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>GD32F10X_HD</Define>
+              <Define>GD32F10X_HD,USE_DBG_OUT</Define>
               <Undefine></Undefine>
               <IncludePath>..\Libraries\GD32F10x_StdPeriph_Driver\inc;..\FreeRtos\include;..\FreeRtos\portable\RVDS\ARM_CM3;\FreeRtos;..\User\inc;..\Libraries\CMSIS;..\Libraries\StartUp;D:\Keil_v5\ARM\Pack\ARM\CMSIS\5.0.0\CMSIS\Include;..\Hardware\inc</IncludePath>
             </VariousControls>

@@ -70,8 +70,7 @@ extern  float q[4];
 //当希望读取 加速度计的X轴输出时，变量是 DMP_DATA.dmp_accx		   -
 //载体俯仰角的 变量是 DMP_DATA.dmp_pitch						   -
 //其他数据 参考 struct DMP_FIFO_map 结构体的定义				   -
-//编写者：lisn3188												   -
-//网址：www.chiplab7.net										   -
+//编写者：lisn3188												   -									   -
 //作者E-mail：lisn3188@163.com									   -
 //------------------------------------------------------------------
 

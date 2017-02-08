@@ -362,7 +362,7 @@
 
 
 
-extern float Acc1G_Values;
+//extern float Acc1G_Values;
 extern uint8_t buffer[14];
 
 //供外部调用的API

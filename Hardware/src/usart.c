@@ -1,14 +1,16 @@
 /******************************************************************
                 DMA 串口打印，非阻塞式
 ****************************************************************/
-
+#include "sys.h"
 #include "usart.h"	  
 #include <stdarg.h>
 #include <string.h>
+//#include "task.h"
+
 
 #ifdef USE_DBG_OUT
 
-char UartSendBuff[256];
+static char *UartSendBuff;//[USART_TX_BUF_SIZE];
 
 UartDMASend_Typedef Uart_DMA_TX;
 
@@ -16,9 +18,18 @@ UartDMASend_Typedef Uart_DMA_TX;
 void uart_dma_init(void);
  
 
-
+/*******************************************************
+  * @函数名称：   uart_init
+  * @函数说明：   串口初始化，使用DMA发送
+  * @输入参数：   u32 bound 波特率
+  * @返回参数：   
+  * @修改记录：   
+******************************************************************/
 void uart_init(u32 bound)
 {
+    
+    UartSendBuff = os_malloc(USART_TX_BUF_SIZE);
+    
     GPIO_InitPara GPIO_InitStructure;
     USART_InitPara USART_InitStructure;
     NVIC_InitPara   NVIC_InitStructure;
@@ -89,9 +100,6 @@ void uart_dma_init(void)
     NVIC_InitStructure.NVIC_IRQEnable    = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);	                           // 根据指定的参数初始化VIC寄存器
     
-    
-                                                                 
-  
       
     DMA_DeInit(DMA1_CHANNEL4);                                              //DMA1通道4配置
                                                                             
@@ -124,21 +132,23 @@ void uart_dma_init(void)
     //采用DMA方式发送
     USART_DMA_Enable(USART1, USART_DMAREQ_TX, ENABLE);
 
-      
-
-
 }
 
 void USART1_IRQHandler(void)                	                   // 串口1中断服务程序
 {
 
 } 
+/*******************************************************
+  * @函数名称：   DMA1_Channel4_IRQHandler
+  * @函数说明：   DMA中断
+  * @输入参数：   
+  * @返回参数：   
+  * @修改记录：   
+******************************************************************/
 void DMA1_Channel4_IRQHandler(void)  
 {  
     DMA_ClearBitState(DMA1_FLAG_TC4);
      
-      
-    
     DMA_Enable(DMA1_CHANNEL4, DISABLE);
 } 
 
@@ -152,22 +162,26 @@ void DMA1_Channel4_IRQHandler(void)
 ******************************************************************/
 TypeState UartPrintf(char *fmt, ...)
 {
-    char buff[256];
+    char *buff;//[USART_TX_BUF_SIZE];
     int printed;
     uint32_t remaining_length;
     
-    __va_list args;
+    //buff = pvPortMall(USART_TX_BUF_SIZE);
     
-    __va_start(args, fmt);
+    buff = os_malloc(USART_TX_BUF_SIZE);
+    
+    va_list args;
+    
+    va_start(args, fmt);
     
     printed = vsprintf(buff, fmt, args);        //转换数据
     
-    __va_end(args);
+    va_end(args);
     
     remaining_length = DMA_GetCurrDataCounter(DMA1_CHANNEL4);   //读取DMA目前指针位置，计算剩余多少数据没输出
     
     
-    if ((remaining_length + printed) > 256)        //缓存满了，存不下，返回错误
+    if ((remaining_length + printed) > USART_TX_BUF_SIZE)        //缓存满了，存不下，返回错误
     {
         return ERROR;
     }

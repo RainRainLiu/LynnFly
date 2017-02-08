@@ -15,7 +15,8 @@
 #define os_malloc(x)    pvPortMalloc(x)
 #define os_free(x)      vPortFree(x
 
-#define delay_ms(x) vTaskDelay(x)
+#define delay_ms(x) 	vTaskDelay(x)
+#define os_delay(x)		vTaskDelay(x)
 
 													    
 	 
