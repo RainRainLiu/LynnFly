@@ -306,7 +306,9 @@ uint8_t MPU6050_DMP_Initialize(void)
 
     // load DMP code into memory banks
     //printf(("正在写入DMP代码段到MPU6050 \r\n"));
-    if (MPU6050_writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE, 0, 0, 1)) {
+    if (MPU6050_writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE, 0, 0, 1)) 
+	{
+		
         //printf(("DMP代码写入校验成功...\r\n"));
         //printf(("配置DMP和有关设置...\r\n"));
         // write DMP configuration
@@ -323,7 +325,7 @@ uint8_t MPU6050_DMP_Initialize(void)
             //printf(("设置外部同步帧到TEMP_OUT_L[0]...\r\n"));
             MPU6050_setExternalFrameSync(MPU6050_EXT_SYNC_TEMP_OUT_L);
             //printf(("设置DLPF带宽为42Hz...\r\n"));
-            MPU6050_setDLPFMode(MPU6050_DLPF_BW_42);
+            MPU6050_setDLPFMode(MPU6050_DLPF_BW_42);	//数字低通滤波器
             //printf(("设置角速度精度为 +/- 2000 deg/sec...\r\n"));
             MPU6050_setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
             //printf(("设置DMP配置字节...\r\n"));
@@ -410,7 +412,7 @@ uint8_t MPU6050_DMP_Initialize(void)
 		else 
 		{
 			
-            //printf(("DMP引擎配置校验出错...\r\n"));
+            DBG_PRINTF(("DMP引擎配置校验出错...\r\n"));
             return 2; // configuration block loading failed
         }
     } 
@@ -446,7 +448,8 @@ void DMP_Routing(void)
 	{  
 	    MPU6050_resetFIFO(); //重置
 	
-	}else if (mpuIntStatus & 0x02) // otherwise, check for DMP data ready interrupt (this should happen frequently)
+	}
+    else if (mpuIntStatus & 0x02) // otherwise, check for DMP data ready interrupt (this should happen frequently)
 	{
 	    // wait for correct available data length, should be a VERY short wait
 	    while (fifoCount < dmpPacketSize) fifoCount = MPU6050_getFIFOCount();
@@ -456,10 +459,11 @@ void DMP_Routing(void)
 	    // (this lets us immediately read more without waiting for an interrupt)
 	    fifoCount -= dmpPacketSize;
 	
-		for(i=0 ; i < dmpPacketSize; i+=2) {
+		for(i=0 ; i < dmpPacketSize; i+=2) 
+        {
 			ptr[i]   = fifoBuffer[i+1];  //数据大小端的处理。
 			ptr[i+1] = fifoBuffer[i];
-			}
+		}
 		DMP_Covert_Data(); //将FIFO的数据进行转换，并解出载体的三个姿态角
 	}	
 }
@@ -531,7 +535,8 @@ float gyrox_val=0;
 float gyroy_val=0;
 
 
-void DMP_Covert_Data(void){
+void DMP_Covert_Data(void)
+{
 	float  qtemp[4],norm ; // 四元数
   
 	// 注意，这里的计算原来是错误的，但因为 PID参数原因，暂时不改
@@ -555,26 +560,21 @@ void DMP_Covert_Data(void){
 	q[2] = qtemp[2] * norm;
 	q[3] = qtemp[3] * norm;
 	
-	DMP_DATA.dmp_roll = (atan2(2.0*(q[0]*q[1] + q[2]*q[3]),
-	                       1 - 2.0*(q[1]*q[1] + q[2]*q[2])))* 180/M_PI;
+	DMP_DATA.dmp_roll = (atan2(2.0*(q[0]*q[1] + q[2]*q[3]), 1 - 2.0*(q[1]*q[1] + q[2]*q[2])))* 57.2957f;//180/M_PI;
+    
+                           
 	 // we let safe_asin() handle the singularities near 90/-90 in pitch
 	DMP_DATA.dmp_pitch = dmpsafe_asin(2.0*(q[0]*q[2] - q[3]*q[1]))* 180/M_PI;
-	//注意：此处计算反了，非右手系。zzzzzzzzzzzzz
-	DMP_DATA.dmp_yaw = -atan2(2.0*(q[0]*q[3] + q[1]*q[2]),
+    
+
+	DMP_DATA.dmp_yaw = atan2(2.0*(q[0]*q[3] + q[1]*q[2]),
 	                     1 - 2.0*(q[2]*q[2] + q[3]*q[3]))* 180/M_PI;
-  #ifdef YAW_CORRECT
-	DMP_DATA.dmp_yaw=-DMP_DATA.dmp_yaw;
-	#endif
-//  gyroxGloble=0.0f*gyrox_val+1.0f*(float)DMP_DATA.GYROx;
-//  gyrox_val=gyroxGloble;
-//  
-//  gyroyGloble=0.0f*gyroy_val+1.0f*(float)DMP_DATA.GYROy;
-//  gyroy_val=gyroyGloble;
 
 }
 
 //读取载体的姿态角 数组的顺序 航向  俯仰  滚转
-void DMP_getYawPitchRoll(){
+void DMP_getYawPitchRoll()
+{
 	Q_ANGLE.Yaw =   DMP_DATA.dmp_yaw;
 	Q_ANGLE.Pitch = DMP_DATA.dmp_pitch; 
   Q_ANGLE.Roll =  DMP_DATA.dmp_roll;

@@ -59,6 +59,14 @@ void System_Clock_Init(void)
 }
 
 
+void SysInit(void)
+{
+    System_Clock_Init();    //初始化时钟
+    SysTick_Init();         //滴答时钟，OS心跳
+    uart_init(115200);      //串口，打印
+    
+}
+
 
 
 

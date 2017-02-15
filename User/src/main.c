@@ -25,12 +25,7 @@
 #include "task.h"
 int main(void)
 {
-    
-    os_malloc(100);
-    //powerOnType = SysInit();
-
-    //xTaskCreate(Main_Task, "main_task", 255, &powerOnType, 2, NULL);
-    
+    SysInit();
 
 	vTaskStartScheduler();
     

@@ -397,6 +397,9 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>APP</GroupName>
+        </Group>
+        <Group>
           <GroupName>Hardware</GroupName>
           <Files>
             <File>
@@ -981,6 +984,9 @@
               <FilePath>..\User\src\sys.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>APP</GroupName>
         </Group>
         <Group>
           <GroupName>Hardware</GroupName>

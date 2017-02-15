@@ -80,11 +80,7 @@
       
 
 
-
-
 //void NVIC_Configuration(void);
-uint8_t SysInit(void);
-void System_DeConfig(void);
-uint8_t Sys_GetPowrOnType(void);
-void Sys_PowerCtrl(TypeState state);
+void SysInit(void);
+
 #endif
