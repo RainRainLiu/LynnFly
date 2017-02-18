@@ -66,7 +66,6 @@ void SPI1_INIT(void)
     SPI_Init(SPI1, &SPI_InitStructure); 
     /* Enable SPI1 */ 
     SPI_Cmd(SPI1, ENABLE);
-    printf("SPI bus init success...\r\n");
 }
 
 

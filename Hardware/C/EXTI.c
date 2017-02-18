@@ -27,17 +27,6 @@ void Exti_Configuration(void)
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPU;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
 	
-
-//	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource5); 
-
-//	
-//	EXTI_InitStructure.EXTI_Line = EXTI_Line5; 
-//	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt; 
-//	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;       //Falling; 
-//	EXTI_InitStructure.EXTI_LineCmd = ENABLE; 
-//	EXTI_Init(&EXTI_InitStructure); 
-//    
-//    Exti_NVIC_Configuration();
 }
 
 
@@ -48,9 +37,6 @@ void EXTI9_5_IRQHandler(void)
 	{ 
 		EXTI_ClearITPendingBit(EXTI_Line5); 
 	} 
-    
-//	printf("roll %f\r\n",DMP_DATA.dmp_roll);
-//        printf("dmp_pitch %f\r\n",DMP_DATA.dmp_pitch);
 
 }
 

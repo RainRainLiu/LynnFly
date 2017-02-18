@@ -30,10 +30,7 @@ int main(void)
     SysInit();
     
     vTaskStartScheduler();
-    
-   
 
-    
     return 0;
 }
 
