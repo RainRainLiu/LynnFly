@@ -170,11 +170,11 @@ void MPU6050_Check(void)
 { 
 	if (MPU6050_testConnection())
 	{
-		//DBG_PRINTF("MPU6050 check success...\r\n");
+		OS_Printf("MPU6050 check success...\r\n");
 	}
 	else
 	{
-		//DBG_PRINTF("MPU6050 not found...\r\n");
+		OS_Printf("MPU6050 not found...\r\n");
 	}
 } 
 /**************************实现函数********************************************
@@ -185,7 +185,8 @@ void MPU6050_initialize(void)
 {
 
 	IICwriteByte(devAddr, MPU6050_RA_PWR_MGMT_1, 0x80);      //PWR_MGMT_1    -- DEVICE_RESET 1
-    os_delay(50);
+    //os_delay(50);
+	OS_Delay(50);
     //delay_ms(50);
     IICwriteByte(devAddr, MPU6050_RA_SMPLRT_DIV, 0x00);      //SMPLRT_DIV    -- SMPLRT_DIV = 0  Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
     IICwriteByte(devAddr, MPU6050_RA_PWR_MGMT_1, 0x03);      //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)

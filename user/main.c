@@ -22,13 +22,15 @@
 //                  ·ð×æ±£ÓÓ             ÓÀÎÞBUG 
 */
 #include "sys.h"
-
+#include "Posture.h"
 
 
 int main(void)
 {
     SysInit();
     
+    xTaskCreate(Posture_Task, "main_task", 255, NULL, 2, NULL);
+
     vTaskStartScheduler();
 
     return 0;

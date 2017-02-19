@@ -55,20 +55,20 @@
 
 
 #ifdef  DBG_PRINTF_OUT
-#define os_printf(format, args...)	DBG_PRINTF(format, args...)
+#define OS_Printf(format, args...)	UartPrintf(&dmaHandle, format, ##args)
 #else
-#define os_printf(format, args...)
+#define OS_Printf(format, args...)
 #endif
 
-#define os_delay(x)         vTaskDelay(x)
+#define OS_Delay(x)         vTaskDelay(x)
        
 
 
 
 
 
-#define os_malloc(x)        pvPortMalloc(x)
-#define os_free(x)          vPortFree(x)
+#define OS_Malloc(x)        pvPortMalloc(x)
+#define OS_Free(x)          vPortFree(x)
     
     
 

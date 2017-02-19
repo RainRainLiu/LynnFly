@@ -304,8 +304,8 @@ uint8_t MPU6050_DMP_Initialize(void)
     //printf(("复位IIC主器件控制权...\r\n"));
     MPU6050_resetI2CMaster();
     //delay_ms(20);
-	os_delay(20);
-	
+	//os_delay(20);
+	OS_Delay(20);
 
     // load DMP code into memory banks
     //printf(("正在写入DMP代码段到MPU6050 \r\n"));
@@ -440,7 +440,8 @@ void DMP_Routing(void)
 	uint8_t* ptr = (uint8_t*)&DMP_DATA;	 //准备将FIFO的数据包，
 	while((MPU6050_is_DRY() == 0) && (fifoCount < dmpPacketSize)) //等待数据转换完成
 	{
-		os_delay(1);
+        OS_Delay(1);
+		//os_delay(1);
 	};
   
 	mpuIntStatus = MPU6050_getIntStatus();	//获取中断状态
