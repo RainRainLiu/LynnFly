@@ -27,6 +27,10 @@
 
 int main(void)
 {
+#ifdef  USE_BLDR
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x3600);
+#endif
+    
     SysInit();
     
     xTaskCreate(Posture_Task, "main_task", 255, NULL, 2, NULL);

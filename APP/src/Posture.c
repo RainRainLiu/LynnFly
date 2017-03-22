@@ -9,8 +9,8 @@ void Posture_Task(void *pvParameters)
     MPU6050_initialize();
     while(1)
     {        
-        //OS_Printf("tick\r\n");
+        OS_Printf("tick\r\n");
         
-        vTaskDelay(1000);
+        vTaskDelay(100);
     }
 }
