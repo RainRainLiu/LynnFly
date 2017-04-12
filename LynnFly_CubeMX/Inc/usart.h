@@ -68,6 +68,19 @@ void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+typedef void (*HAL_UART_ReceiveProcessCB)(uint8_t nData);
+
+#ifdef  DBG_PRINTF_OUT
+#define DBG_PRINTF(format, args...)	UartPrintf(format, ##args)
+#else
+#define DBG_PRINTF(format, args...)
+#endif
+
+
+ErrorStatus UartPrintf(char *fmt, ...);
+ErrorStatus Hal_UART_SendString(uint8_t *pData, uint32_t nLength);
+ErrorStatus HAL_UART_SetReceiveCB(HAL_UART_ReceiveProcessCB cb);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

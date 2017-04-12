@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--C99</MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F103xB</Define>
+              <Define>USE_HAL_DRIVER,STM32F103xB,DBG_PRINTF_OUT</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;  ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;  ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;  ../Middlewares/Third_Party/FreeRTOS/Source/include;  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;  ../Drivers/CMSIS/Include;  ..\Communication</IncludePath>
+              <IncludePath>../Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;  ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;  ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;  ../Middlewares/Third_Party/FreeRTOS/Source/include;  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;  ../Drivers/CMSIS/Include;  ..\Task\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -385,11 +385,6 @@
               <FilePath>../Src/i2c.c</FilePath>
             </File>
             <File>
-              <FileName>dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/dma.c</FilePath>
-            </File>
-            <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/usart.c</FilePath>
@@ -424,15 +419,15 @@
               <FileType>1</FileType>
               <FilePath>../Src/gpio.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Communication</GroupName>
-          <Files>
             <File>
-              <FileName>COM_Task.c</FileName>
+              <FileName>stm32f1xx_hal_timebase_TIM.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Communication\COM_Task.c</FilePath>
+              <FilePath>../Src/stm32f1xx_hal_timebase_TIM.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/dma.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -588,6 +583,19 @@
               <FileName>startup_stm32f103xb.s</FileName>
               <FileType>2</FileType>
               <FilePath>startup_stm32f103xb.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers/Hardware</GroupName>
+        </Group>
+        <Group>
+          <GroupName>Application/Task</GroupName>
+          <Files>
+            <File>
+              <FileName>Communication.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Task\Src\Communication.c</FilePath>
             </File>
           </Files>
         </Group>

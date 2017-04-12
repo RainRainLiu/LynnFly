@@ -49,11 +49,30 @@
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
+#include <stdarg.h>
+#include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+
+typedef struct
+{
+    HAL_UART_ReceiveProcessCB rxCB; //接收回调
+    UART_HandleTypeDef *huart;      //uart
+    uint8_t rxData;                 //接收数据
+    uint8_t *pTxData;               //发送数据
+    uint8_t free;
+    
+}HAL_UART_HADNLE_T;
+
+HAL_UART_HADNLE_T debugUart = 
+{
+    .huart = &huart1,
+};
 
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
-DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USART1 init function */
@@ -104,21 +123,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     /* Peripheral DMA init*/
   
-    hdma_usart1_rx.Instance = DMA1_Channel5;
-    hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart1_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart1_rx);
-
     hdma_usart1_tx.Instance = DMA1_Channel4;
     hdma_usart1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_usart1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -158,7 +162,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_10);
 
     /* Peripheral DMA DeInit*/
-    HAL_DMA_DeInit(uartHandle->hdmarx);
     HAL_DMA_DeInit(uartHandle->hdmatx);
   }
   /* USER CODE BEGIN USART1_MspDeInit 1 */
@@ -167,6 +170,125 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+
+/******************************************************************
+  * @函数说明：   串口printf输出
+  * @输入参数：   标准printf输出
+  * @输出参数：   无
+  * @返回参数：   无             
+  * @修改记录：   ----
+******************************************************************/
+ErrorStatus UartPrintf(char *fmt, ...)
+{
+    char *buff = NULL;//[64];
+    int printed;
+    
+    buff = pvPortMalloc(256);
+    
+    if (buff == NULL)
+    {
+        return ERROR;
+    }
+    __va_list args;
+    
+    __va_start(args, fmt);
+    
+    printed = vsprintf(buff, fmt, args);        //转换数据
+    
+    __va_end(args);
+    
+    if (Hal_UART_SendString((uint8_t *)buff, printed) == ERROR)
+    {
+        vPortFree(buff);
+        return ERROR;
+    }
+    
+    vPortFree(buff);
+    
+    return SUCCESS;
+}
+/******************************************************************
+  * @函数说明：   设置接收数据的回调函数
+  * @输入参数：   HAL_UART_ReceiveProcessCB cb 回调函数
+  * @输出参数：   无
+  * @返回参数：   无             
+  * @修改记录：   ----
+******************************************************************/
+ErrorStatus HAL_UART_SetReceiveCB(HAL_UART_ReceiveProcessCB cb)
+{
+    if (cb == NULL)
+    {
+        return ERROR;
+    }
+    
+    debugUart.rxCB = cb;
+    HAL_UART_Receive_IT(debugUart.huart, &debugUart.rxData, 1);
+    return SUCCESS;
+}
+
+/******************************************************************
+  * @函数说明：   串口接收中断处理，并掉用处理回调
+  * @输入参数：   UART_HandleTypeDef *huart 串口
+  * @输出参数：   
+  * @返回参数：   无             
+  * @修改记录：   ----
+******************************************************************/
+ErrorStatus Hal_UART_SendString(uint8_t *pData, uint32_t nLength)
+{
+    ErrorStatus status = SUCCESS;
+    
+    if (debugUart.free == 1 && debugUart.pTxData != NULL)
+    {
+        vPortFree(debugUart.pTxData);
+    }
+    debugUart.free = 0;
+    
+    debugUart.pTxData = pvPortMalloc(nLength);
+    
+    if (debugUart.pTxData != NULL)
+    {
+        
+        memcpy(debugUart.pTxData, pData, nLength);
+        if (HAL_UART_Transmit_DMA(debugUart.huart, debugUart.pTxData, nLength) == HAL_OK)
+        {
+           status = SUCCESS; 
+        }
+        else
+        {
+            vPortFree(debugUart.pTxData);
+            debugUart.pTxData = NULL;
+            status = ERROR;
+        }
+    }
+    else
+    {
+        status = ERROR;
+    }
+    return status;
+}
+
+/******************************************************************
+  * @函数说明：   串口接收中断处理，并掉用处理回调
+  * @输入参数：   UART_HandleTypeDef *huart 串口
+  * @输出参数：   
+  * @返回参数：   无             
+  * @修改记录：   ----
+******************************************************************/
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (debugUart.rxCB != NULL)
+    {
+        debugUart.rxCB(debugUart.rxData);
+    }
+    HAL_UART_Receive_IT(huart, &debugUart.rxData, 1);
+    
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    debugUart.free = 1;
+}
+
 
 /* USER CODE END 1 */
 
