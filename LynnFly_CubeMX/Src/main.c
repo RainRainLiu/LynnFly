@@ -49,10 +49,10 @@
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
-#include "Communication.h"
 
 /* USER CODE BEGIN Includes */
-//#include "COM_Task.h"
+#include "Communication.h"
+#include "Posture.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -100,6 +100,7 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   COMM_Start();
+  Posture_Start();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

@@ -68,18 +68,17 @@ void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+
+#define HAL_UART_NUMBER             1
+#define HAL_UART_SEND_QUEUE_MX      10  //发队列长度
+
 typedef void (*HAL_UART_ReceiveProcessCB)(uint8_t nData);
 
-#ifdef  DBG_PRINTF_OUT
-#define DBG_PRINTF(format, args...)	UartPrintf(format, ##args)
-#else
-#define DBG_PRINTF(format, args...)
-#endif
-
-
-ErrorStatus UartPrintf(char *fmt, ...);
-ErrorStatus Hal_UART_SendString(uint8_t *pData, uint32_t nLength);
-ErrorStatus HAL_UART_SetReceiveCB(HAL_UART_ReceiveProcessCB cb);
+ErrorStatus Hal_UART_SendString(UART_HandleTypeDef* huart, uint8_t *pData, uint32_t nLength);
+ErrorStatus UartPrintf(UART_HandleTypeDef* huart, char *fmt, ...);
+ErrorStatus HAL_UART_SetReceiveCB(UART_HandleTypeDef* huart, HAL_UART_ReceiveProcessCB cb);
+//ErrorStatus Hal_UART_SendString(uint8_t *pData, uint32_t nLength);
+//ErrorStatus UartPrintf(char *fmt, ...);
 
 /* USER CODE END Prototypes */
 

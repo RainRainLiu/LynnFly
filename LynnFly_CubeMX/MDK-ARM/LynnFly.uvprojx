@@ -335,7 +335,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB,DBG_PRINTF_OUT</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc;  ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;  ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;  ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;  ../Middlewares/Third_Party/FreeRTOS/Source/include;  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;  ../Drivers/CMSIS/Include;  ..\Task\Inc</IncludePath>
+              <IncludePath>../Inc;       ../Drivers/STM32F1xx_HAL_Driver/Inc;       ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;       ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;       ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;       ../Middlewares/Third_Party/FreeRTOS/Source/include;       ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;       ../Drivers/CMSIS/Include;       ..\Task\Inc;       ..\Hardware\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -588,6 +588,13 @@
         </Group>
         <Group>
           <GroupName>Drivers/Hardware</GroupName>
+          <Files>
+            <File>
+              <FileName>MPU6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\MPU6050.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Application/Task</GroupName>
@@ -596,6 +603,11 @@
               <FileName>Communication.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Task\Src\Communication.c</FilePath>
+            </File>
+            <File>
+              <FileName>Posture.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Task\Src\Posture.c</FilePath>
             </File>
           </Files>
         </Group>

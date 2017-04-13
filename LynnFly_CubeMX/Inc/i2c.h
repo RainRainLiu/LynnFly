@@ -67,7 +67,8 @@ extern void Error_Handler(void);
 void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+ErrorStatus Hal_I2C_ReadRegister(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint8_t *pData, uint16_t Size);
+ErrorStatus Hal_I2C_WriteRegister(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint8_t *pData, uint16_t Size);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

@@ -53,6 +53,15 @@
 
 /* USER CODE BEGIN Private defines */
 
+#ifdef  DBG_PRINTF_OUT
+#define osPrintf(format, args...)	UartPrintf(&huart1,format, ##args)
+#else
+#define osPrintf(format, args...)
+#endif
+
+#define osMalloc    pvPortMalloc
+#define osFree      vPortFree
+
 /* USER CODE END Private defines */
 
 /**
