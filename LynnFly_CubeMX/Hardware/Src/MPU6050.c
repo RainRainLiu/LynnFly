@@ -2,7 +2,8 @@
 #include "i2c.h"
 #include "string.h"
 #include "FreeRTOS.h"
-
+#include "task.h"
+#include "cmsis_os.h"
 
 #define M_PI_F 3.1415926
 #define CONSTANTS_ONE_G					9.80665f		/* m/s^2		*/
@@ -70,8 +71,8 @@ MPU6050_SENSOR_DATA_T MPU6050_ReadSensor(void)
 {
     MPU6050_SENSOR_DATA_T sensorData;
     
-    uint8_t *data;
-    data = osMalloc(12);
+    static uint8_t data[12];
+    //data = osMalloc(12);
     Hal_I2C_ReadRegister(&hi2c1, MPU6050_ADDRESS, MPU6050_RA_ACCEL_XOUT_H, data, 12);   //读取数据
             
     sensorData.accX = (float)((uint16_t)(data[0] << 8 | data[1]) *ACC_SCALE);   //转换
@@ -102,6 +103,7 @@ ErrorStatus MPU6050_initialize(void)
     }
 
 	MPU6050_WriteByte(MPU6050_RA_PWR_MGMT_1, 0x80);      //PWR_MGMT_1    -- DEVICE_RESET 1
+    osDelay(50);
 
     MPU6050_WriteByte(MPU6050_RA_SMPLRT_DIV, 0x00);      //SMPLRT_DIV    -- SMPLRT_DIV = 0  Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
     MPU6050_WriteByte(MPU6050_RA_PWR_MGMT_1, 0x03);      //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)

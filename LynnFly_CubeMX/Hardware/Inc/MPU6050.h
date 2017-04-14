@@ -377,7 +377,8 @@ typedef struct
 /* * * * * * * * * * * * * */    
      
 uint8_t MPU6050_GetDeviceID(void);  
-     
+MPU6050_SENSOR_DATA_T MPU6050_ReadSensor(void);
+ErrorStatus MPU6050_initialize(void);     
      
      
      
