@@ -372,6 +372,10 @@ typedef struct
     float gyroX;
     float gyroY;
     float gyroZ;
+    
+    float offsetGyroX;
+    float offsetGyroY;
+    float offsetGyroZ;
 }MPU6050_SENSOR_DATA_T;
  
 /* * * * * * * * * * * * * */    

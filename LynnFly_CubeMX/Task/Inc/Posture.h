@@ -5,7 +5,15 @@
  extern "C" {
 #endif
      
+typedef struct
+{
+    float roll;
+    float pitch;
+    float yaw;
+    
+}POSTURE_INFO_T;    
      
+        
 
 void Posture_Start(void);
      

@@ -186,7 +186,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>0</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -335,7 +335,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB,DBG_PRINTF_OUT</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;        ../Drivers/STM32F1xx_HAL_Driver/Inc;        ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;        ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;        ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;        ../Middlewares/Third_Party/FreeRTOS/Source/include;        ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;        ../Drivers/CMSIS/Include;        ..\Task\Inc;        ..\Hardware\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Drivers/CMSIS/Include;..\Task\Inc;..\Hardware\Inc;..\Component\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -603,6 +603,16 @@
               <FileName>Posture.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Task\Src\Posture.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Component</GroupName>
+          <Files>
+            <File>
+              <FileName>filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Component\Src\filter.c</FilePath>
             </File>
           </Files>
         </Group>

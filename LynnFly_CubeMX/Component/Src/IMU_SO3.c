@@ -3,12 +3,7 @@ Part of this algrithom is referred from pixhawk.
 https://github.com/hsteinhaus/PX4Firmware/blob/master/src/modules/attitude_estimator_so3/attitude_estimator_so3_main.cpp
 ------------------------------------
 */
-#include "Posture.h"
-#include "MPU6050.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "cmsis_os.h"
-#include "usart.h"
+#include "IMU_SO3.h"
 #include "math.h"
 
 //! Auxiliary variables to reduce number of repeated operations
@@ -20,6 +15,8 @@ static float q1q1, q1q2, q1q3;
 static float q2q2, q2q3;
 static float q3q3;
 static uint8_t bFilterInit = 0;
+
+
 
 //函数名：invSqrt(void)
 //描述：求平方根的倒数
@@ -123,7 +120,7 @@ static void NonlinearSO3AHRSupdate(float gx, float gy, float gz, float ax, float
         hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
         hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
         hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
-        bx = sqrt(hx * hx + hy * hy);
+        bx = 1.0 / invSqrt(hx * hx + hy * hy);
         bz = hz;
 
         // Estimated direction of magnetic field
@@ -222,9 +219,13 @@ static void NonlinearSO3AHRSupdate(float gx, float gy, float gz, float ax, float
 
 #define so3_comp_params_Kp 1.0f
 #define so3_comp_params_Ki  0.05f
-#define M_PI_F 3.1415926f
 
-POSTURE_INFO_T IMUSO3Thread1(MPU6050_SENSOR_DATA_T *sensorData)
+
+//函数名：IMUSO3Thread(void)
+//描述：姿态软件解算融合函数
+//该函数对姿态的融合是软件解算，Crazepony现在不使用DMP硬件解算
+//对应的硬件解算函数为IMU_Process()
+void IMUSO3Thread(void)
 {
     //! Time constant
     float dt = 0.01f;		//s
@@ -244,23 +245,48 @@ POSTURE_INFO_T IMUSO3Thread1(MPU6050_SENSOR_DATA_T *sensorData)
     static float gyro_offsets_sum[3]= { 0.0f, 0.0f, 0.0f }; // gyro_offsets[3] = { 0.0f, 0.0f, 0.0f },
     static uint16_t offset_count = 0;
 
-    now=xTaskGetTickCount();;
-    dt=(tPrev>0)?(now-tPrev)/1000.0f:0;
-    tPrev=now;
-    
-    //printf("dt %f\r\n", dt);
-
+    //now=micros();
+    //dt=(tPrev>0)?(now-tPrev)/1000000.0f:0;
+    //tPrev=now;
+    //
     //ReadIMUSensorHandle();
-
-
-
-    gyro[0] = sensorData->gyroX;
-    gyro[1] = sensorData->gyroY;
-    gyro[2] = sensorData->gyroZ;
-    
-    acc[0] = -sensorData->accX;
-    acc[1] = -sensorData->accY;
-    acc[2] = -sensorData->accZ;
+    //
+    //if(!imu.ready)
+    //{
+    //    if(startTime==0)
+    //        startTime=now;
+    //
+    //    gyro_offsets_sum[0] += imu.gyroRaw[0];
+    //    gyro_offsets_sum[1] += imu.gyroRaw[1];
+    //    gyro_offsets_sum[2] += imu.gyroRaw[2];
+    //    offset_count++;
+    //
+    //    if(now > startTime + GYRO_CALC_TIME)
+    //    {
+    //        imu.gyroOffset[0] = gyro_offsets_sum[0]/offset_count;
+    //        imu.gyroOffset[1] = gyro_offsets_sum[1]/offset_count;
+    //        imu.gyroOffset[2] = gyro_offsets_sum[2]/offset_count;
+    //
+    //        offset_count=0;
+    //        gyro_offsets_sum[0]=0;
+    //        gyro_offsets_sum[1]=0;
+    //        gyro_offsets_sum[2]=0;
+    //
+    //        imu.ready = 1;
+    //        startTime=0;
+    //
+    //    }
+    //    return;
+    //}
+    //
+    //
+    //gyro[0] = imu.gyro[0] - imu.gyroOffset[0];
+    //gyro[1] = imu.gyro[1] - imu.gyroOffset[1];
+    //gyro[2] = imu.gyro[2] - imu.gyroOffset[2];
+    //
+    //acc[0] = -imu.accb[0];
+    //acc[1] = -imu.accb[1];
+    //acc[2] = -imu.accb[2];
 
     // NOTE : Accelerometer is reversed.
     // Because proper mount of PX4 will give you a reversed accelerometer readings.
@@ -299,128 +325,21 @@ POSTURE_INFO_T IMUSO3Thread1(MPU6050_SENSOR_DATA_T *sensorData)
     //imu.rollRad=euler[0];
     //imu.pitchRad=euler[1];
     //imu.yawRad=euler[2];
-    POSTURE_INFO_T info;
-    info.roll = euler[0] * 180.0f / M_PI_F;
-    info.pitch = euler[1] * 180.0f / M_PI_F;
-    info.yaw = euler[2] * 180.0f / M_PI_F;
-    
-    return info;
-}
-
-//函数名：IMUSO3Thread(void)
-//描述：姿态软件解算融合函数
-//该函数对姿态的融合是软件解算，Crazepony现在不使用DMP硬件解算
-//对应的硬件解算函数为IMU_Process()
-POSTURE_INFO_T IMUSO3Thread(MPU6050_SENSOR_DATA_T *sensorData)
-{
-    //! Time constant
-    float dt = 0.01f;		//s
-    uint32_t now;
-    static int tPrev = 0;
-    /* output euler angles */
-    float euler[3] = {0.0f, 0.0f, 0.0f};	//rad
-
-    /* Initialization */
-    float Rot_matrix[9] = {1.f,  0.0f,  0.0f, 0.0f,  1.f,  0.0f, 0.0f,  0.0f,  1.f };		/**< init: identity matrix */
-    float acc[3] = {0.0f, 0.0f, 0.0f};		//m/s^2
-    float gyro[3] = {0.0f, 0.0f, 0.0f};		//rad/s
-    float mag[3] = {0.0f, 0.0f, 0.0f};
-
-
-    now = xTaskGetTickCount();
-    dt=(tPrev>0)?(now-tPrev)/1000.0f:0;
-    tPrev=now;
-    gyro[0] = sensorData->gyroX;
-    gyro[1] = sensorData->gyroY;
-    gyro[2] = sensorData->gyroZ;
-    
-    acc[0] = -sensorData->accX;
-    acc[1] = -sensorData->accY;
-    acc[2] = -sensorData->accZ;
-    
-    //osPrintf("dt %f\r\n",dt);
-    // NOTE : Accelerometer is reversed.
-    // Because proper mount of PX4 will give you a reversed accelerometer readings.
-    NonlinearSO3AHRSupdate(gyro[0], gyro[1], gyro[2],
-                           -acc[0], -acc[1], -acc[2],
-                           mag[0], mag[1], mag[2],
-                           so3_comp_params_Kp,
-                           so3_comp_params_Ki,
-                           dt);
-
-
-    // Convert q->R, This R converts inertial frame to body frame.
-    Rot_matrix[0] = q0q0 + q1q1 - q2q2 - q3q3;// 11
-    Rot_matrix[1] = 2.f * (q1*q2 + q0*q3);	// 12
-    Rot_matrix[2] = 2.f * (q1*q3 - q0*q2);	// 13
-    Rot_matrix[3] = 2.f * (q1*q2 - q0*q3);	// 21
-    Rot_matrix[4] = q0q0 - q1q1 + q2q2 - q3q3;// 22
-    Rot_matrix[5] = 2.f * (q2*q3 + q0*q1);	// 23
-    Rot_matrix[6] = 2.f * (q1*q3 + q0*q2);	// 31
-    Rot_matrix[7] = 2.f * (q2*q3 - q0*q1);	// 32
-    Rot_matrix[8] = q0q0 - q1q1 - q2q2 + q3q3;// 33
-
-    //1-2-3 Representation.
-    //Equation (290)
-    //Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors, James Diebel.
-    // Existing PX4 EKF code was generated by MATLAB which uses coloum major order matrix.
-    euler[0] = atan2f(Rot_matrix[5], Rot_matrix[8]);	//! Roll
-    euler[1] = -asinf(Rot_matrix[2]);									//! Pitch
-    euler[2] = atan2f(Rot_matrix[1], Rot_matrix[0]);
-    
-    POSTURE_INFO_T info;
-    
-    info.roll = euler[0] * 180.0f / M_PI_F;
-    info.pitch = euler[1] * 180.0f / M_PI_F;
-    info.yaw = euler[2] * 180.0f / M_PI_F;
-    
-    return info;
-
-
-}
-
-/******************************************************************
-  * @函数说明：   通讯循环处理
-  * @输入参数：   
-  * @输出参数：   无
-  * @返回参数：   无             
-  * @修改记录：   ----
-******************************************************************/
-static void Posture_Loop(void const * argument)
-{
-    MPU6050_SENSOR_DATA_T sensorData;
-    POSTURE_INFO_T posture;
-    
-    if (MPU6050_initialize() == SUCCESS)
-    {
-        osPrintf("MPU6050 Initialize Sucess\r\n");
-    }
-    
-    while(1)
-    {
-        osDelay(100);
-        sensorData = MPU6050_ReadSensor();
-        osPrintf("acc  X %4.4f Y %4.4f Z %4.4f\r\n", sensorData.accX,sensorData.accY,sensorData.accZ);
-        
-        osPrintf("gyro X %4.4f Y %4.4f Z %4.4f\r\n", sensorData.gyroX,sensorData.gyroY,sensorData.gyroZ);
-        
-        posture = IMUSO3Thread1(&sensorData);
-        
-        //osPrintf("************************************************\r\n");
-        
-        osPrintf("roll %4.4f pitch %4.4f yaw %4.4f\r\n", posture.roll, posture.pitch, posture.yaw);
-        
-    }
+    //
+    //imu.roll=euler[0] * 180.0f / M_PI_F;
+    //imu.pitch=euler[1] * 180.0f / M_PI_F;
+    //imu.yaw=euler[2] * 180.0f / M_PI_F;
 }
 
 
-void Posture_Start(void)
-{
-    
-    osThreadDef(PostureTask, Posture_Loop, osPriorityNormal, 1, 256);
-    osThreadCreate(osThread(PostureTask), NULL);
-    
-}
+
+
+
+
+
+
+
+
 
 
 
